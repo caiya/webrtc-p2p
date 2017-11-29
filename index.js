@@ -2,6 +2,8 @@ var server = require('./server')
 var log = require('./log').log
 var port = process.argv[2] || 5001
 
+var requestHandlers = require('./serverXHRSignalingChannel')
+
 // 返回404
 function notFound(info) {
   var res = info.res
@@ -14,6 +16,10 @@ function notFound(info) {
 var handle = {}
 
 handle['/'] = notFound
+
+handle['/connect'] = requestHandlers.connect
+handle['/send'] = requestHandlers.send
+handle['/get'] = requestHandlers.get
 
 server.serveFilePath('static')
 server.start(handle, port)

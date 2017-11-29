@@ -17,9 +17,16 @@ function start(handle, port) {
   function onRequest(req, res) {
     var urlData = url.parse(req.url, true),
       pathName = urlData.pathname,
-      info = { 'res': res }
+      info = { 'res': res, 'query': urlData.query, 'postData': '' }
     log('Request for ' + pathName + ' received')
-    route(handle, pathName, info)
+    req.setEncoding('utf8')
+    req.addListener('data', function(postDataChunk) {
+      info.postData += postDataChunk
+      log('Received post data chunk ' + postDataChunk + '.')
+    })
+    req.addListener('end', function(){
+      route(handle, pathName, info)
+    })
   }
 
   http.createServer(onRequest).listen(port)
@@ -59,7 +66,8 @@ function createFilePath(pathName) {
 
 // 打开指定文件，读取内容，将内容返回给客户端
 function serveFile(filePath, info) {
-  var res = info.res
+  var res = info.res,
+      query = info.query
   log('Serving file ' + filePath)
   fs.open(filePath, 'r', (err, fd) => {
     if (err) {
@@ -78,7 +86,7 @@ function serveFile(filePath, info) {
       log('Just read ' + readBytes + ' bytes')
       if (readBytes > 0) {
         res.writeHead(200, { 'Content-Type': contentType(filePath) })
-        res.write(readBuffer.toString('utf8', 0, readBytes))
+        res.write(addQuery(readBuffer.toString('utf8', 0, readBytes), query))
       }
       res.end()
     })
@@ -120,4 +128,12 @@ function noHandlerError(pathName, res) {
   res.writeHead(404, {'Content-Type': 'text/plain'})
   res.write('404 Page Not Found')
   res.end()
+}
+
+// 将html文件中的第一个空脚本替换成特定对象，该对象包含url中的query参数
+function addQuery(str, query) {
+  if (query) {
+    return str.replace('<script></script>', `<script>var queryParams = ${JSON.stringify(query)}</script>`)
+  } 
+  return str
 }
