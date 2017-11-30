@@ -1,4 +1,4 @@
-var log = require('./log')
+var log = require('./log').log
 
 var connections = {},   // 链接列表
   partner = {},       // 用于在对等端进行映射
@@ -102,6 +102,8 @@ function sendMessage(info) {
 
   webrtcResponse('Saving message *** ' + postData.message + ' *** for delivery to id ' + partner[postData.id], res)
 }
+
+exports.send = sendMessage
 
 // 返回所有队列获取info.postData.id的消息
 function getMessages(info) {
