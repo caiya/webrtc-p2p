@@ -1,20 +1,3 @@
-// Copyright 2013-2014 Digital Codex LLC
-// You may use this code for your own education.  If you use it
-// largely intact, or develop something from it, don't claim
-// that your code came first.  You are using this code completely
-// at your own risk.  If you rely on it to work in any particular
-// way, you're an idiot and we won't be held responsible.
-
-// This code creates the client-side commands for an XML HTTP
-// Request-based signaling channel for WebRTC.
-
-// The signaling channel assumes a 2-person connection via a
-// shared key.  Every connection attempt toggles the state
-// between "waiting" and "connected", meaning that if 2 browsers
-// are connected and another tries to connect the existing
-// connection will be severed and the new browser will be
-// "waiting".
-
 var createSignalingChannel = function (key, handlers) {
 
   var id, status,
